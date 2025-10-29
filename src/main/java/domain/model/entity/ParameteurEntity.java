@@ -2,11 +2,17 @@ package domain.model.entity;
 
 public class ParameteurEntity {
     private Integer id;
-    private Integer maximumAlert;
+    private Integer normalAlert;
+    private Integer criticAlert;
+    private String macAddress;
+    private String component;
 
-    public ParameteurEntity(Integer id, Integer maximumAlert) {
+    public ParameteurEntity(Integer id, Integer normalAlert, Integer criticAlert, String macAddress, String component) {
         this.id = id;
-        this.maximumAlert = maximumAlert;
+        this.normalAlert = normalAlert;
+        this.criticAlert = criticAlert;
+        this.macAddress = macAddress;
+        this.component = component;
     }
 
     public ParameteurEntity() {}
@@ -19,11 +25,35 @@ public class ParameteurEntity {
         this.id = id;
     }
 
-    public Integer getMaximumAlert() {
-        return this.maximumAlert;
+    public Integer getCriticAlert() {
+        return this.criticAlert;
     }
 
-    public void setMaximumAlert(Integer maximumAlert) {
-        this.maximumAlert = maximumAlert;
+    public void setCriticAlert(Integer criticAlert) {
+        this.criticAlert = criticAlert;
+    }
+
+    public Integer getNormalAlert() {
+        return this.normalAlert;
+    }
+
+    public void setNormalAlert(Integer normalAlert) {
+        this.normalAlert = normalAlert;
+    }
+
+    public String getMacAddress() {
+        return this.macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getComponent() {
+        return component;
+    }
+
+    public void setComponent(String component) {
+        this.component = component;
     }
 }
