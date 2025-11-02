@@ -1,4 +1,4 @@
-package domain.factory;
+package infrastructure.persistence.factory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
