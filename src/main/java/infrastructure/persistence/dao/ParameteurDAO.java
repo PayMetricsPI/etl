@@ -1,15 +1,17 @@
-package domain.model.dao;
+package infrastructure.persistence.dao;
 
-import domain.factory.DatabaseConnectionFactory;
-import domain.model.entity.ParameteurEntity;
+import domain.repository.ParameteurRepository;
+import infrastructure.persistence.factory.DatabaseConnectionFactory;
+import domain.entity.ParameteurEntity;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParameteurDAO {
+public class ParameteurDAO implements ParameteurRepository {
 
+    @Override
     public List<ParameteurEntity> verifyAlerts(String macAddress) {
         String sql = """
             SELECT
