@@ -1,4 +1,4 @@
-package application.factory;
+package infrastructure.s3.service;
 
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
