@@ -1,4 +1,5 @@
 import domain.entity.ParameteurEntity;
+import infrastructure.Jira.service.Jira;
 import infrastructure.csv.service.ReadCSVService;
 import infrastructure.csv.service.WriteCSVService;
 import infrastructure.persistence.dao.ParameteurDAO;
@@ -17,10 +18,12 @@ import static infrastructure.folder.FolderProcessor.cleanFolder;
 public class Main {
 
     public static void main(String[] args) {
+
+        Jira jira = new Jira();
         String accessKey = System.getenv("AWS_ACCESS_KEY");
         String secretKey = System.getenv("AWS_SECRET_KEY");
         String sessionToken = System.getenv("AWS_SESSION_TOKEN");
-        String bucketNameReceived = "inserir-raw";
+        String bucketNameReceived = " inserir-raw";
         String bucketNameSend = "iserir-trusted";
 
         Path inputFolder = Path.of("src/main/resources/input-csv");
@@ -70,22 +73,58 @@ public class Main {
                     if (component.equals("cpu")) {
                         cpuNormal = alert.getNormalAlert();
                         cpuCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: CPU acima de 80%",
+                                "A CPU do servidor passou do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: CPU acima de 90%",
+                                "A CPU do servidor atingiu um nível crítico"
+                        );
                     }
                     if (component.equals("ram")) {
                         ramNormal = alert.getNormalAlert();
                         ramCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Ram acima de 80%",
+                                "A Ram do servidor passou do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Ram acima de 90%",
+                                "A Ram do servidor atingiu um nível crítico"
+                        );
                     }
                     if (component.equals("disco")) {
                         discoNormal = alert.getNormalAlert();
                         discoCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Disco acima de 80%",
+                                "O Disco do servidor passou do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Disco acima de 90%",
+                                "O Disco do servidor atingiu um nível crítico"
+                        );
                     }
                     if (component.equals("mb enviados - rede")) {
                         networkSendNormal = alert.getNormalAlert();
                         networkSendCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Mb enviados acima de 80%",
+                                "Os Mb enviados do servidor passaram do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Mb recebidos acima de 90%",
+                                "os Mb recebidos do servidor atingiram um nível crítico, risco!"
+                        );
                     }
                     if (component.equals("mb recebidos - rede")) {
                         networkReceivedNormal = alert.getNormalAlert();
-                        networkReceivedCritic = alert.getCriticAlert(); }
+                        networkReceivedCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Mb recebidos acima de 80%",
+                                "Os Mb recebidos do servidor passaram do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Mb recebidos acima de 90%",
+                                "os Mb recebidos do servidor atingiram um nível crítico, risco!"
+                        );
+                    }
                 }
 
                 String[] header = rows.get(0);
