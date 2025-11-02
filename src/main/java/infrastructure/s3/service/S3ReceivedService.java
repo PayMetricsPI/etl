@@ -1,4 +1,4 @@
-package application.service;
+package infrastructure.s3.service;
 
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -6,7 +6,6 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.util.List;
 
 public class S3Service {

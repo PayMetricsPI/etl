@@ -1,4 +1,4 @@
-package domain.model.entity;
+package domain.entity;
 
 public class ParameteurEntity {
     private Integer id;
