@@ -8,16 +8,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class S3Service {
+public class S3ReceivedService {
     private final S3Client s3Client;
     private final String bucketName;
 
-    public S3Service(S3Client s3Client, String bucketName) {
+    public S3ReceivedService(S3Client s3Client, String bucketName) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
     }
 
-    public void processFiles(String localFolder) {
+    public void processFiles(Path localFolder) {
         ListObjectsV2Request listRequest = ListObjectsV2Request
                 .builder()
                 .bucket(bucketName)
@@ -36,7 +36,7 @@ public class S3Service {
                 continue;
             }
 
-            Path localPath = Paths.get(localFolder, fileName);
+            Path localPath = localFolder.resolve(fileName);
             s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build(),
                     ResponseTransformer.toFile(localPath));
 
