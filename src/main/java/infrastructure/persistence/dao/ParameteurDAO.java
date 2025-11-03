@@ -18,7 +18,8 @@ public class ParameteurDAO implements ParameteurRepository {
             	s.mac_address AS 'Endereço MAC do servidor',
                 c.nome AS 'Nome do componente de hardware',
             	p.alerta_critico AS 'Alerta crítico',
-                p.alerta_normal AS 'Alerta normal'
+                p.alerta_normal AS 'Alerta normal',
+                s.nome as 'Nome'
             FROM
             	servidor s
             INNER JOIN
