@@ -1,4 +1,5 @@
 import domain.entity.ParameteurEntity;
+import infrastructure.Jira.Jira;
 import infrastructure.csv.service.ReadCSVService;
 import infrastructure.csv.service.WriteCSVService;
 import infrastructure.persistence.dao.ParameteurDAO;
@@ -17,11 +18,13 @@ import static infrastructure.folder.FolderProcessor.cleanFolder;
 public class Main {
 
     public static void main(String[] args) {
-        String accessKey = System.getenv("AWS_ACCESS_KEY");
-        String secretKey = System.getenv("AWS_SECRET_KEY");
-        String sessionToken = System.getenv("AWS_SESSION_TOKEN");
-        String bucketNameReceived = "inserir-raw";
-        String bucketNameSend = "iserir-trusted";
+
+        Jira jira = new Jira();
+        String accessKey = "";
+        String secretKey = "";
+        String sessionToken = "";
+        String bucketNameReceived = "raw-paymetrics";
+        String bucketNameSend = "trusted-paymetrics";
 
         Path inputFolder = Path.of("src/main/resources/input-csv");
         Path outputFolder = Path.of("src/main/resources/output-csv");
@@ -70,22 +73,58 @@ public class Main {
                     if (component.equals("cpu")) {
                         cpuNormal = alert.getNormalAlert();
                         cpuCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: CPU acima de "+cpuNormal+"%",
+                                "A CPU do servidor passou do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: CPU acima de "+cpuCritic+"%",
+                                "A CPU do servidor atingiu um nível crítico"
+                        );
                     }
                     if (component.equals("ram")) {
                         ramNormal = alert.getNormalAlert();
                         ramCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Ram acima de "+ramNormal+"%",
+                                "A Ram do servidor passou do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Ram acima de "+ramCritic+"%",
+                                "A Ram do servidor atingiu um nível crítico"
+                        );
                     }
                     if (component.equals("disco")) {
                         discoNormal = alert.getNormalAlert();
                         discoCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Disco acima de "+discoNormal+"%",
+                                "O Disco do servidor passou do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Disco acima de "+discoCritic+"%",
+                                "O Disco do servidor atingiu um nível crítico"
+                        );
                     }
                     if (component.equals("mb enviados - rede")) {
                         networkSendNormal = alert.getNormalAlert();
                         networkSendCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Mb enviados acima de "+networkSendNormal+"%",
+                                "Os Mb enviados do servidor passaram do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Mb recebidos acima de "+networkSendCritic+"%",
+                                "os Mb recebidos do servidor atingiram um nível crítico, risco!"
+                        );
                     }
                     if (component.equals("mb recebidos - rede")) {
                         networkReceivedNormal = alert.getNormalAlert();
-                        networkReceivedCritic = alert.getCriticAlert(); }
+                        networkReceivedCritic = alert.getCriticAlert();
+                        jira.criarAlertaNormal(
+                                "Alerta normal: Mb recebidos acima de "+networkReceivedNormal+"%",
+                                "Os Mb recebidos do servidor passaram do limite padrão");
+                        jira.criarAlertaCritico(
+                                "Alerta crítico: Mb recebidos acima de "+networkReceivedCritic+"%",
+                                "os Mb recebidos do servidor atingiram um nível crítico, risco!"
+                        );
+                    }
                 }
 
                 String[] header = rows.get(0);
