@@ -6,13 +6,15 @@ public class ParameteurEntity {
     private Integer criticAlert;
     private String macAddress;
     private String component;
+    private String name;
 
-    public ParameteurEntity(Integer id, Integer normalAlert, Integer criticAlert, String macAddress, String component) {
+    public ParameteurEntity(Integer id, Integer normalAlert, Integer criticAlert, String macAddress, String component, String name) {
         this.id = id;
         this.normalAlert = normalAlert;
         this.criticAlert = criticAlert;
         this.macAddress = macAddress;
         this.component = component;
+        this.name = name;
     }
 
     public ParameteurEntity() {}
@@ -56,4 +58,8 @@ public class ParameteurEntity {
     public void setComponent(String component) {
         this.component = component;
     }
+
+    public String getName() { return name; }
+
+    public void setName(String name) { this.name = name; }
 }

@@ -8,8 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class Jira {
-
-
     private final String jiraApiUrl = "https://sptech-team-dhiovpb1.atlassian.net/rest/api/3/issue";
     private final String userEmail = "leonardo.tubero@sptech.school";
     private final String apiToken = "ATATT3xFfGF0vzCcDxPPsdRGjlkryCSqe-ytGsrP0c8KuI3a7KnbxAW6X3PaSD_U9ZyUsnR4iBOhLoU6pbSCfJhZmJSHJ3LZTtmPZbYCC0XLk8TYOwR5ixDmeJmYNUwHKJY_-Yhj7eIadR0mkNinlmWmbB6bvS2f88C8LYpy7Bsh4yh8Lsxw794=4A5DBC93";
