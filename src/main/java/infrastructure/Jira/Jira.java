@@ -1,4 +1,4 @@
-package infrastructure.Jira.service;
+package infrastructure.Jira;
 
 import java.io.OutputStream;
 import java.io.InputStream;
@@ -10,10 +10,10 @@ import java.util.Base64;
 public class Jira {
 
 
-    private final String jiraApiUrl = "sua API url";
-    private final String userEmail = "seu email";
-    private final String apiToken = "seu token de api";
-    private final String auth;
+    private final String jiraApiUrl = "https://sptech-team-dhiovpb1.atlassian.net/rest/api/3/issue";
+    private final String userEmail = "leonardo.tubero@sptech.school";
+    private final String apiToken = "ATATT3xFfGF0vzCcDxPPsdRGjlkryCSqe-ytGsrP0c8KuI3a7KnbxAW6X3PaSD_U9ZyUsnR4iBOhLoU6pbSCfJhZmJSHJ3LZTtmPZbYCC0XLk8TYOwR5ixDmeJmYNUwHKJY_-Yhj7eIadR0mkNinlmWmbB6bvS2f88C8LYpy7Bsh4yh8Lsxw794=4A5DBC93";
+    private String auth;
 
     public Jira() {
         String authStr = userEmail + ":" + apiToken;
@@ -22,35 +22,33 @@ public class Jira {
 
     private void criarTicket(String summary, String descriptionText, String priority, String customFieldId, String customFieldValue) throws Exception {
         String body = """
-{
-  "fields": {
-    "project": { "key": "PAYM" },
-    "summary": "%s",
-    "description": {
-      "type": "doc",
-      "version": 1,
-      "content": [
         {
-          "type": "paragraph",
-          "content": [
-            {
-              "text": "%s",
-              "type": "text"
-            }
-          ]
+          "fields": {
+            "project": { "key": "PAYM" },
+            "summary": "%s",
+            "description": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "%s",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            "issuetype": { "name": "Problem" },
+            "priority": { "name": "%s" },
+            "labels": ["categoriaA"],
+            "%s": "%s",
+            "customfield_10008": "2025-11-01T13:45:00.000+0000"
+          }
         }
-      ]
-    },
-    "issuetype": { "name": "Problem" },
-    "priority": { "name": "%s" },
-    "labels": ["categoriaA"],
-    "%s": "%s",
-    "customfield_10008": "2025-11-01T13:45:00.000+0000"
-  }
-}
-""".formatted(summary, descriptionText, priority, customFieldId, customFieldValue);
-
-
+        """.formatted(summary, descriptionText, priority, customFieldId, customFieldValue);
 
         URL url = new URL(jiraApiUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
