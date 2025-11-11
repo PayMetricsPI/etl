@@ -8,11 +8,17 @@ import infrastructure.s3.service.S3ReceivedService;
 import infrastructure.s3.service.S3SendService;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import static infrastructure.folder.FolderProcessor.cleanFolder;
 
 public class Main {
@@ -20,14 +26,28 @@ public class Main {
     public static void main(String[] args) {
 
         Jira jira = new Jira();
-        String accessKey = "";
-        String secretKey = "";
-        String sessionToken = "";
+        String accessKey = "ASIAUGYH2HKTKOTXLLPW";
+        String secretKey = "5qZNDwyBu0TRTAVeC0TYC3hhLKUVz6Rx60Z5Cqcj";
+        String sessionToken = "IQoJb3JpZ2luX2VjEPn//////////wEaCXVzLXdlc3QtMiJGMEQCI" +
+                "HxnOSKfbwHOJlWqYh9RF8W/53/ZrKnJc1eql+u1D6cmAiAY7b4VhCi98nHd7Ee0cvkaQ" +
+                "x6Vwk8BP3YOPQwDaQlLrCrAAgjC//////////8BEAEaDDI4OTM4OTgyMDU4MiIM4KTWEB" +
+                "g0ww9AD0YQKpQCP9uCXfdJUAAOAmTs6SLeddQ1VBBsy7es8Fbl0INIkloJ+rQGuYGxwwBV" +
+                "sUS3P2kqpcyhTWscYUryLTW9fKw0/ti0ZtqTPzNLpy8FYCD/Z/62hVwmy+l+jVVHqOdwuuc" +
+                "QkY9ZVp1i4Xut8lAgSdZpwFnHVFcwokVkXM8CmeCn84Pj0qvXv/hjuv3cvw3JJwK0ydopEu" +
+                "UwBnKfP0LodRBqQCg8uNKOdfJzCMb55sVubG2MKWc0G03qjj/oL7jNhTWgPqotPMP98v6coX" +
+                "tnFysCVOFBbwr/phkg9SUnnDAG9m7FHf+ssB5vnv7vvKy/QDdeyr7nu+FAS9Z/q8CPnn/0Kv7" +
+                "yGDvXixkM9t1/zuN+2fdYQtamML/IuMgGOp4BaoTfyQfKDJ+ogT1LhFCi9A/eHbqLD/jTgJMK" +
+                "qP0StTQLCXncE8PGinRVuytnvGpqTczXuT5827npjg9UCaDfZ1Q7dgk4UzVyQCB+nOIjyt3CL" +
+                "dYrmqvdrPWoRTLzQ8aCOo8twCRdHSseljaVQzEkzZC+mWBGG4OngsfZ2mWjTbfbRQqjktBUMX" +
+                "+r6kuuPumwDho0MTZDY/Da/8rDLKs=";
         String bucketNameReceived = "raw-paymetrics";
         String bucketNameSend = "trusted-paymetrics";
+        String bucketNameSendClient = "client-paymetrics";
+
 
         Path inputFolder = Path.of("src/main/resources/input-csv");
         Path outputFolder = Path.of("src/main/resources/output-csv");
+        Path outputFolderJson = Path.of("src/main/resources/output-json");
         Region region = Region.US_EAST_1;
 
         try (S3Client s3Client = S3ClientFactory.createClient(accessKey, secretKey, sessionToken, region)) {
@@ -46,6 +66,7 @@ public class Main {
             ReadCSVService readCSVService = new ReadCSVService();
             WriteCSVService writeCSVService = new WriteCSVService();
             ParameteurDAO parameteurDAO = new ParameteurDAO();
+            ObjectMapper jsonMapper = new ObjectMapper();
 
             List<Path> csvFiles = readCSVService.getCSVFiles(inputFolder);
 
@@ -144,13 +165,32 @@ public class Main {
                         networkSendNormal, networkSendCritic,
                         networkReceivedNormal, networkReceivedCritic
                 );
+
+                File csv = csvFile.toFile();
+                CsvMapper csvMapper = new CsvMapper();
+                CsvSchema csvSchema = CsvSchema.emptySchema().withHeader().withColumnSeparator(';');
+
+                MappingIterator<Map<String, String>> mappingIterator = csvMapper.readerFor(Map.class).with(csvSchema).readValues(csv);
+                List<Map<String, String>> csvData = mappingIterator.readAll();
+
+                String json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(csvData);
+
+                String jsonFileName = csvFile.getFileName().toString().replace(".csv", ".json");
+                Path jsonFilePath = outputFolderJson.resolve(jsonFileName);
+
+                Files.writeString(jsonFilePath, json);
+
+                S3SendService sendService = new S3SendService(s3Client, bucketNameSendClient);
+                sendService.uploadAllJSON(outputFolderJson);
+
             }
 
             S3SendService sendService = new S3SendService(s3Client, bucketNameSend);
             sendService.uploadAllCSV(outputFolder);
 
-            cleanFolder(inputFolder);
-            cleanFolder(outputFolder);
+          //cleanFolder(inputFolder);
+          //cleanFolder(outputFolder);
+            // cleanFolder(outputFolderJson);
 
         } catch (Exception e) {
             System.err.println(e.getMessage());

@@ -56,6 +56,7 @@ public class WriteCSVService {
                             + ";" + netSendStatus
                             + ";" + netRecvStatus);
                     writer.newLine();
+
                 } catch (NumberFormatException e) {
                     System.out.println(e.getMessage());
                 }
