@@ -26,20 +26,9 @@ public class Main {
     public static void main(String[] args) {
 
         Jira jira = new Jira();
-        String accessKey = "ASIAUGYH2HKTKOTXLLPW";
-        String secretKey = "5qZNDwyBu0TRTAVeC0TYC3hhLKUVz6Rx60Z5Cqcj";
-        String sessionToken = "IQoJb3JpZ2luX2VjEPn//////////wEaCXVzLXdlc3QtMiJGMEQCI" +
-                "HxnOSKfbwHOJlWqYh9RF8W/53/ZrKnJc1eql+u1D6cmAiAY7b4VhCi98nHd7Ee0cvkaQ" +
-                "x6Vwk8BP3YOPQwDaQlLrCrAAgjC//////////8BEAEaDDI4OTM4OTgyMDU4MiIM4KTWEB" +
-                "g0ww9AD0YQKpQCP9uCXfdJUAAOAmTs6SLeddQ1VBBsy7es8Fbl0INIkloJ+rQGuYGxwwBV" +
-                "sUS3P2kqpcyhTWscYUryLTW9fKw0/ti0ZtqTPzNLpy8FYCD/Z/62hVwmy+l+jVVHqOdwuuc" +
-                "QkY9ZVp1i4Xut8lAgSdZpwFnHVFcwokVkXM8CmeCn84Pj0qvXv/hjuv3cvw3JJwK0ydopEu" +
-                "UwBnKfP0LodRBqQCg8uNKOdfJzCMb55sVubG2MKWc0G03qjj/oL7jNhTWgPqotPMP98v6coX" +
-                "tnFysCVOFBbwr/phkg9SUnnDAG9m7FHf+ssB5vnv7vvKy/QDdeyr7nu+FAS9Z/q8CPnn/0Kv7" +
-                "yGDvXixkM9t1/zuN+2fdYQtamML/IuMgGOp4BaoTfyQfKDJ+ogT1LhFCi9A/eHbqLD/jTgJMK" +
-                "qP0StTQLCXncE8PGinRVuytnvGpqTczXuT5827npjg9UCaDfZ1Q7dgk4UzVyQCB+nOIjyt3CL" +
-                "dYrmqvdrPWoRTLzQ8aCOo8twCRdHSseljaVQzEkzZC+mWBGG4OngsfZ2mWjTbfbRQqjktBUMX" +
-                "+r6kuuPumwDho0MTZDY/Da/8rDLKs=";
+        String accessKey = "";
+        String secretKey = "";
+        String sessionToken = "";
         String bucketNameReceived = "raw-paymetrics";
         String bucketNameSend = "trusted-paymetrics";
         String bucketNameSendClient = "client-paymetrics";
