@@ -64,7 +64,7 @@ public class S3SendService {
                             .build();
 
                     s3Client.putObject(objectRequest, filePath);
-                    System.out.println(" E  nviado JSON para client-paymetrics " + fileName);
+                    System.out.println(" Enviado JSON para client-paymetrics " + fileName);
                 }
             }
         } catch (Exception e) {
