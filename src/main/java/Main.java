@@ -155,7 +155,7 @@ public class Main {
                         networkReceivedNormal, networkReceivedCritic
                 );
 
-                File csv = csvFile.toFile();
+                File csv = outputFile.toFile();
                 CsvMapper csvMapper = new CsvMapper();
                 CsvSchema csvSchema = CsvSchema.emptySchema().withHeader().withColumnSeparator(';');
 
