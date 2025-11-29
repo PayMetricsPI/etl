@@ -49,6 +49,11 @@ public class Main {
                 Files.createDirectories(outputFolder);
             }
 
+            if (!Files.exists(outputFolderJson)) {
+                Files.createDirectories(outputFolderJson);
+            }
+
+
             S3ReceivedService receivedService = new S3ReceivedService(s3Client, bucketNameReceived);
             receivedService.processFiles(inputFolder);
 
@@ -164,7 +169,7 @@ public class Main {
             cleanFolder(outputFolderJson);
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
