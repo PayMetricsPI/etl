@@ -8,11 +8,17 @@ import infrastructure.s3.service.S3ReceivedService;
 import infrastructure.s3.service.S3SendService;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import static infrastructure.folder.FolderProcessor.cleanFolder;
 
 public class Main {
@@ -25,9 +31,12 @@ public class Main {
         String sessionToken = "";
         String bucketNameReceived = "raw-paymetrics";
         String bucketNameSend = "trusted-paymetrics";
+        String bucketNameSendClient = "client-paymetrics";
+
 
         Path inputFolder = Path.of("src/main/resources/input-csv");
         Path outputFolder = Path.of("src/main/resources/output-csv");
+        Path outputFolderJson = Path.of("src/main/resources/output-json");
         Region region = Region.US_EAST_1;
 
         try (S3Client s3Client = S3ClientFactory.createClient(accessKey, secretKey, sessionToken, region)) {
@@ -46,6 +55,7 @@ public class Main {
             ReadCSVService readCSVService = new ReadCSVService();
             WriteCSVService writeCSVService = new WriteCSVService();
             ParameteurDAO parameteurDAO = new ParameteurDAO();
+            ObjectMapper jsonMapper = new ObjectMapper();
 
             List<Path> csvFiles = readCSVService.getCSVFiles(inputFolder);
             csvFiles.removeIf(path -> path.getFileName().toString().toUpperCase().contains("LIDO"));
@@ -117,6 +127,7 @@ public class Main {
                 }
 
                 Path outputFile = outputFolder.resolve(csvFile.getFileName());
+
                 writeCSVService.writeCSV(
                         outputFile, rows, columnIndex,
                         cpuNormal, cpuCritic,
@@ -125,6 +136,24 @@ public class Main {
                         networkSendNormal, networkSendCritic,
                         networkReceivedNormal, networkReceivedCritic
                 );
+
+                File csv = outputFile.toFile();
+                CsvMapper csvMapper = new CsvMapper();
+                CsvSchema csvSchema = CsvSchema.emptySchema().withHeader().withColumnSeparator(';');
+
+                MappingIterator<Map<String, String>> mappingIterator = csvMapper.readerFor(Map.class).with(csvSchema).readValues(csv);
+                List<Map<String, String>> csvData = mappingIterator.readAll();
+
+                String json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(csvData);
+
+                String jsonFileName = csvFile.getFileName().toString().replace(".csv", ".json");
+                Path jsonFilePath = outputFolderJson.resolve(jsonFileName);
+
+                Files.writeString(jsonFilePath, json);
+
+                S3SendService sendService = new S3SendService(s3Client, bucketNameSendClient);
+                sendService.uploadAllJSON(outputFolderJson);
+
             }
 
             S3SendService sendService = new S3SendService(s3Client, bucketNameSend);
@@ -132,6 +161,7 @@ public class Main {
 
             cleanFolder(inputFolder);
             cleanFolder(outputFolder);
+            cleanFolder(outputFolderJson);
 
         } catch (Exception e) {
             System.err.println(e.getMessage());

@@ -10,6 +10,8 @@ public class S3SendService {
     private final S3Client s3Client;
     private final String bucketName;
 
+
+
     public S3SendService(S3Client s3Client, String bucketName) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
@@ -47,4 +49,29 @@ public class S3SendService {
             System.out.println(e.getMessage());
         }
     }
+
+    public void uploadAllJSON(Path folderPath) {
+        try (DirectoryStream<Path> files = Files.newDirectoryStream(folderPath)) {
+            for (Path filePath : files) {
+                if (filePath.toString().endsWith(".json")) {
+
+                    String fileName = filePath.getFileName().toString();
+
+                    PutObjectRequest objectRequest = PutObjectRequest.builder()
+                            .bucket("client-paymetrics")
+                            .key("output/" + fileName)
+                            .contentType("application/json; charset=UTF-8")
+                            .build();
+
+                    s3Client.putObject(objectRequest, filePath);
+                    System.out.println(" Enviado JSON para client-paymetrics " + fileName);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao enviar JSONs: " + e.getMessage());
+        }
+    }
+
 }
+
+
