@@ -10,7 +10,7 @@ import java.util.Base64;
 public class Jira {
     private final String jiraApiUrl = "https://sptech-team-dhiovpb1.atlassian.net/rest/api/3/issue";
     private final String userEmail = "leonardo.tubero@sptech.school";
-    private final String apiToken = "ATATT3xFfGF0vzCcDxPPsdRGjlkryCSqe-ytGsrP0c8KuI3a7KnbxAW6X3PaSD_U9ZyUsnR4iBOhLoU6pbSCfJhZmJSHJ3LZTtmPZbYCC0XLk8TYOwR5ixDmeJmYNUwHKJY_-Yhj7eIadR0mkNinlmWmbB6bvS2f88C8LYpy7Bsh4yh8Lsxw794=4A5DBC93";
+    private final String apiToken = "";
     private String auth;
 
     public Jira() {
@@ -55,7 +55,6 @@ public class Jira {
         conn.setRequestProperty("Authorization", "Basic " + auth);
         conn.setRequestProperty("Content-Type", "application/json");
 
-
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.getBytes(StandardCharsets.UTF_8));
         }
@@ -82,25 +81,17 @@ public class Jira {
         conn.disconnect();
     }
 
-
-    public void criarAlertaNormal(String summary, String description) throws Exception {
-        criarTicket(summary, description, "High", "customfield_10062", "48");
-    }
-
-
     public void criarAlertaCritico(String summary, String description) throws Exception {
         criarTicket(summary, description, "Highest", "customfield_10062", "48");
+    }
+
+    public void criarAlertaNormal(String summary, String description) throws Exception{
+        criarTicket(summary, description, "Medium", "customfield_10062", "48");
     }
 
     public static void main(String[] args) {
         try {
             Jira jira = new Jira();
-            jira.criarAlertaNormal(
-                    "Alerta normal: CPU acima de 70%",
-                    "A CPU do servidor passou do limite padrão, mas não há impacto crítico."
-            );
-
-
             jira.criarAlertaCritico(
                     "Alerta crítico: CPU acima de 90%",
                     "A CPU do servidor atingiu um nível crítico, risco de downtime!"

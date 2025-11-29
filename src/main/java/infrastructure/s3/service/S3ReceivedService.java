@@ -21,26 +21,43 @@ public class S3ReceivedService {
         ListObjectsV2Request listRequest = ListObjectsV2Request
                 .builder()
                 .bucket(bucketName)
+                .prefix("hardware/")
                 .build();
         ListObjectsV2Response listResponse = s3Client.listObjectsV2(listRequest);
 
         List<S3Object> objects = listResponse.contents();
 
-        for (int i = 0; i < objects.size(); i++) {
-            S3Object object = objects.get(i);
+        for (S3Object object : objects) {
             String key = object.key();
+
+            if (key.endsWith("/")) {
+                continue;
+            }
+
+            if (object.size() == 0) {
+                System.out.println("Ignorando objeto vazio (possível pasta): " + key);
+                continue;
+            }
+
             String fileName = Paths.get(key).getFileName().toString();
 
             if (fileName.toUpperCase().contains("LIDO")) {
-                System.out.println("Ignorando arquivo (já lido): ");
+                System.out.println("Ignorando arquivo (já lido): " + fileName);
                 continue;
             }
 
             Path localPath = localFolder.resolve(fileName);
-            s3Client.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build(),
-                    ResponseTransformer.toFile(localPath));
+
+            s3Client.getObject(
+                    GetObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .build(),
+                    ResponseTransformer.toFile(localPath)
+            );
 
             String newKey = key.replace(".csv", "_LIDO.csv");
+
             s3Client.copyObject(CopyObjectRequest.builder()
                     .sourceBucket(bucketName)
                     .sourceKey(key)
@@ -48,7 +65,10 @@ public class S3ReceivedService {
                     .destinationKey(newKey)
                     .build());
 
-            s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build());
         }
     }
 }

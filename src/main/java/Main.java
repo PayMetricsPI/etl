@@ -48,83 +48,47 @@ public class Main {
             ParameteurDAO parameteurDAO = new ParameteurDAO();
 
             List<Path> csvFiles = readCSVService.getCSVFiles(inputFolder);
+            csvFiles.removeIf(path -> path.getFileName().toString().toUpperCase().contains("LIDO"));
 
             for (Path csvFile : csvFiles) {
                 System.out.println("Processando arquivo: " + csvFile.getFileName());
                 List<String[]> rows = readCSVService.readCSV(csvFile);
 
-                if (rows.isEmpty()) {
-                    continue;
-                }
+                if (rows.isEmpty()) continue;
 
                 String macAddress = readCSVService.getColumnValue(csvFile, "mac_address");
                 List<ParameteurEntity> alertas = parameteurDAO.verifyAlerts(macAddress);
 
-                Integer cpuNormal = 0, cpuCritic = 0;
-                Integer ramNormal = 0, ramCritic = 0;
-                Integer discoNormal = 0, discoCritic = 0;
-                Integer networkSendNormal = 0, networkSendCritic = 0;
-                Integer networkReceivedNormal = 0, networkReceivedCritic = 0;
+                Integer cpuNormal = null, cpuCritic = null;
+                Integer ramNormal = null, ramCritic = null;
+                Integer discoNormal = null, discoCritic = null;
+                Integer networkSendNormal = null, networkSendCritic = null;
+                Integer networkReceivedNormal = null, networkReceivedCritic = null;
 
-                for (int i = 0; i < alertas.size(); i++) {
-                    ParameteurEntity alert = alertas.get(i);
+                for (ParameteurEntity alert : alertas) {
                     String component = alert.getComponent().toLowerCase();
-                    String name = alert.getName();
 
-                    if (component.equals("cpu")) {
-                        cpuNormal = alert.getNormalAlert();
-                        cpuCritic = alert.getCriticAlert();
-                        jira.criarAlertaNormal(
-                                "Alerta normal na máquina "+name+": CPU acima de "+cpuNormal+"%",
-                                "A CPU do servidor passou do limite padrão");
-                        jira.criarAlertaCritico(
-                                "Alerta crítico na máquina "+name+": CPU acima de "+cpuCritic+"%",
-                                "A CPU do servidor atingiu um nível crítico"
-                        );
-                    }
-                    if (component.equals("ram")) {
-                        ramNormal = alert.getNormalAlert();
-                        ramCritic = alert.getCriticAlert();
-                        jira.criarAlertaNormal(
-                                "Alerta normal na máquina "+name+": Ram acima de "+ramNormal+"%",
-                                "A Ram do servidor passou do limite padrão");
-                        jira.criarAlertaCritico(
-                                "Alerta crítico na máquina "+name+": Ram acima de "+ramCritic+"%",
-                                "A Ram do servidor atingiu um nível crítico"
-                        );
-                    }
-                    if (component.equals("disco")) {
-                        discoNormal = alert.getNormalAlert();
-                        discoCritic = alert.getCriticAlert();
-                        jira.criarAlertaNormal(
-                                "Alerta normal na máquina "+name+": Disco acima de "+discoNormal+"%",
-                                "O Disco do servidor passou do limite padrão");
-                        jira.criarAlertaCritico(
-                                "Alerta crítico na máquina "+name+": Disco acima de "+discoCritic+"%",
-                                "O Disco do servidor atingiu um nível crítico"
-                        );
-                    }
-                    if (component.equals("mb enviados - rede")) {
-                        networkSendNormal = alert.getNormalAlert();
-                        networkSendCritic = alert.getCriticAlert();
-                        jira.criarAlertaNormal(
-                                "Alerta na máquina "+name+": Mb enviados acima de "+networkSendNormal+"%",
-                                "Os Mb enviados do servidor passaram do limite padrão");
-                        jira.criarAlertaCritico(
-                                "Alerta crítico na máquina "+name+": Mb recebidos acima de "+networkSendCritic+"%",
-                                "os Mb recebidos do servidor atingiram um nível crítico, risco!"
-                        );
-                    }
-                    if (component.equals("mb recebidos - rede")) {
-                        networkReceivedNormal = alert.getNormalAlert();
-                        networkReceivedCritic = alert.getCriticAlert();
-                        jira.criarAlertaNormal(
-                                "Alerta normal na máquina "+name+": Mb recebidos acima de "+networkReceivedNormal+"%",
-                                "Os Mb recebidos do servidor passaram do limite padrão");
-                        jira.criarAlertaCritico(
-                                "Alerta crítico na máquina "+name+": Mb recebidos acima de "+networkReceivedCritic+"%",
-                                "os Mb recebidos do servidor atingiram um nível crítico, risco!"
-                        );
+                    switch (component) {
+                        case "cpu" -> {
+                            cpuNormal = alert.getNormalAlert();
+                            cpuCritic = alert.getCriticAlert();
+                        }
+                        case "ram" -> {
+                            ramNormal = alert.getNormalAlert();
+                            ramCritic = alert.getCriticAlert();
+                        }
+                        case "disco" -> {
+                            discoNormal = alert.getNormalAlert();
+                            discoCritic = alert.getCriticAlert();
+                        }
+                        case "mb enviados - rede" -> {
+                            networkSendNormal = alert.getNormalAlert();
+                            networkSendCritic = alert.getCriticAlert();
+                        }
+                        case "mb recebidos - rede" -> {
+                            networkReceivedNormal = alert.getNormalAlert();
+                            networkReceivedCritic = alert.getCriticAlert();
+                        }
                     }
                 }
 
@@ -134,8 +98,25 @@ public class Main {
                     columnIndex.put(header[i].toLowerCase(), i);
                 }
 
-                Path outputFile = outputFolder.resolve(csvFile.getFileName());
+                for (int i = 1; i < rows.size(); i++) {
+                    String[] col = rows.get(i);
 
+                    Double cpuValue = Double.parseDouble(col[columnIndex.get("cpu")]);
+                    Double ramValue = Double.parseDouble(col[columnIndex.get("ram")]);
+                    Double discoValue = Double.parseDouble(col[columnIndex.get("disco")]);
+                    Double netSendValue = Double.parseDouble(col[columnIndex.get("mb_enviados")]);
+                    Double netRecvValue = Double.parseDouble(col[columnIndex.get("mb_recebidos")]);
+
+                    String machineName = col[columnIndex.get("codigo_maquina")];
+
+                    verifyAlertsLines(jira, machineName, cpuValue, cpuNormal, cpuCritic, "CPU");
+                    verifyAlertsLines(jira, machineName, ramValue, ramNormal, ramCritic, "RAM");
+                    verifyAlertsLines(jira, machineName, discoValue, discoNormal, discoCritic, "Disco");
+                    verifyAlertsLines(jira, machineName, netSendValue, networkSendNormal, networkSendCritic, "Mb enviados");
+                    verifyAlertsLines(jira, machineName, netRecvValue, networkReceivedNormal, networkReceivedCritic, "Mb recebidos");
+                }
+
+                Path outputFile = outputFolder.resolve(csvFile.getFileName());
                 writeCSVService.writeCSV(
                         outputFile, rows, columnIndex,
                         cpuNormal, cpuCritic,
@@ -156,4 +137,26 @@ public class Main {
             System.err.println(e.getMessage());
         }
     }
+
+    private static void verifyAlertsLines(
+            Jira jira,
+            String name,
+            Double value,
+            Integer normal,
+            Integer critic,
+            String componente
+    ) throws Exception {
+        if (value >= critic) {
+            jira.criarAlertaCritico(
+                    "Alerta crítico na máquina " + name + ": " + componente + " acima de " + critic + "%",
+                    componente + " atingiu nível crítico."
+            );
+        } else if (value >= normal) {
+            jira.criarAlertaNormal(
+                    "Alerta normal na máquina " + name + ": " + componente + " acima de " + normal + "%",
+                    componente + " acima do limite normal."
+            );
+        }
+    }
+
 }

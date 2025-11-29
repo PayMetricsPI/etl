@@ -37,6 +37,7 @@ public class WriteCSVService {
                 }
 
                 try {
+                    String macAddress = columns[columnIndex.get("codigo_maquina")];
                     Double cpuValue = Double.parseDouble(columns[columnIndex.get("cpu")]);
                     Double ramValue = Double.parseDouble(columns[columnIndex.get("ram")]);
                     Double discoValue = Double.parseDouble(columns[columnIndex.get("disco")]);
