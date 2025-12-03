@@ -121,14 +121,15 @@ public class Main {
                     Double discoValue = Double.parseDouble(col[columnIndex.get("disco")]);
                     Double netSendValue = Double.parseDouble(col[columnIndex.get("mb_enviados")]);
                     Double netRecvValue = Double.parseDouble(col[columnIndex.get("mb_recebidos")]);
+                    String mac = col[columnIndex.get("mac_address")];
 
                     String machineName = col[columnIndex.get("codigo_maquina")];
 
-                    verifyAlertsLines(jira, machineName, cpuValue, cpuNormal, cpuCritic, "CPU");
-                    verifyAlertsLines(jira, machineName, ramValue, ramNormal, ramCritic, "RAM");
-                    verifyAlertsLines(jira, machineName, discoValue, discoNormal, discoCritic, "Disco");
-                    verifyAlertsLines(jira, machineName, netSendValue, networkSendNormal, networkSendCritic, "Mb enviados");
-                    verifyAlertsLines(jira, machineName, netRecvValue, networkReceivedNormal, networkReceivedCritic, "Mb recebidos");
+                    verifyAlertsLines(jira, machineName, cpuValue, cpuNormal, cpuCritic, "CPU", mac);
+                    verifyAlertsLines(jira, machineName, ramValue, ramNormal, ramCritic, "RAM", mac);
+                    verifyAlertsLines(jira, machineName, discoValue, discoNormal, discoCritic, "Disco", mac);
+                    verifyAlertsLines(jira, machineName, netSendValue, networkSendNormal, networkSendCritic, "Mb enviados", mac);
+                    verifyAlertsLines(jira, machineName, netRecvValue, networkReceivedNormal, networkReceivedCritic, "Mb recebidos", mac);
                 }
 
                 Path outputFile = outputFolder.resolve(csvFile.getFileName());
@@ -179,17 +180,18 @@ public class Main {
             Double value,
             Integer normal,
             Integer critic,
-            String componente
+            String componente,
+            String mac
     ) throws Exception {
         if (value >= critic) {
             jira.criarAlertaCritico(
                     "Alerta crítico na máquina " + name + ": " + componente + " acima de " + critic + "%",
-                    componente + " atingiu nível crítico."
+                    mac
             );
         } else if (value >= normal) {
             jira.criarAlertaNormal(
                     "Alerta normal na máquina " + name + ": " + componente + " acima de " + normal + "%",
-                    componente + " acima do limite normal."
+                    mac
             );
         }
     }
