@@ -31,7 +31,7 @@ public class Main {
         String sessionToken = "";
         String bucketNameReceived = "paymetricsraw";
         String bucketNameSend = "paymetricstrusted";
-        String bucketNameSendClient = "paymetricsclient";
+        String bucketNameSendClient = "paymetricsclient2";
 
 
         

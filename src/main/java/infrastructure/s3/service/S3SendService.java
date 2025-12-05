@@ -62,8 +62,8 @@ public class S3SendService {
                     String fileName = filePath.getFileName().toString();
 
                     PutObjectRequest objectRequest = PutObjectRequest.builder()
-                            .bucket("paymetricsclient")
-                            .key("output/" + fileName)
+                            .bucket("paymetricsclient2")
+                            .key("saida/" + fileName)
                             .contentType("application/json; charset=UTF-8")
                             .build();
 

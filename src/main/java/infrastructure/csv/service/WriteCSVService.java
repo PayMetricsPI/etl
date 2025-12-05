@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class WriteCSVService {
 
@@ -30,10 +32,13 @@ public class WriteCSVService {
                     + ";ram_status;ram_status_critico"
                     + ";disco_status;disco_status_critico"
                     + ";mb_enviados_status;mb_enviados_status_critico"
-                    + ";mb_recebidos_status;mb_recebidos_status_critico");
+                    + ";mb_recebidos_status;mb_recebidos_status_critico"
+                    + ";data_alerta");
             writer.newLine();
 
-            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String dataAlerta = LocalDateTime.now().format(formatter);
+
             for (int i = 1; i < lines.size(); i++) {
                 String[] columns = lines.get(i);
 
@@ -103,7 +108,8 @@ public class WriteCSVService {
                             + ";" + ramStatus + ";" + ramStatusCritico
                             + ";" + discoStatus + ";" + discoStatusCritico
                             + ";" + netSendStatus + ";" + netSendStatusCritico
-                            + ";" + netRecvStatus + ";" + netRecvStatusCritico);
+                            + ";" + netRecvStatus + ";" + netRecvStatusCritico
+                            + ";" + dataAlerta);
                     writer.newLine();
 
                 } catch (NumberFormatException e) {
